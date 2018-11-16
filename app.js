@@ -9,6 +9,7 @@ var flash = require('connect-flash');
 var indexRouter = require('./routes/index');
 // var usersRouter = require('./routes/users');
 var Post = require('./models/post.js');
+var appHelper = require('./models/appHelper.js');
 
 var app = express();
 
@@ -16,6 +17,7 @@ var app = express();
 var settings = require('./settings');
 var session = require('express-session');
 var MongoStore = require('connect-mongo')(session);
+app.set('trust proxy', 1) // trust first proxy
 app.use(session({
 	secret : settings.cookieSecret,
 	cookie : {maxAge : 3600000},
@@ -41,38 +43,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-
-app.use(bodyParser.urlencoded({ extended: false }));
-app.post('/delete', function (request, response) {
-    // 使用body-parser
-    Post.remove({id: request.body.id}, function(err, result) {
-        response.end(JSON.stringify({status: 200}));
-    });
-
-    // 不使用body-parser中间件
-    // response.setHeader('Content-Type','text/html');
-    // var data = '';
-    // request.on('data', function(chunk){    
-    //     data += chunk;
-    // });
-    // 在end事件触发后，通过querystring.parse将post解析为真正的POST请求格式，然后向客户端返回。
-    // request.on('end', function(error){    
-        // Post.remove({id: data.split('=')[1]}, function(err, result) {
-        //     console.log(err, '=====', result);
-        //     response.end({status: 200});
-        // })
-    // });
-})
-
-
-indexRouter(app);
-// app.use('/users', usersRouter);
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-    next(createError(404));
-});
-
 // handle for mongodb
 app.use(session({
     secret: settings.cookieSecret,
@@ -84,6 +54,16 @@ app.use(session({
         port: settings.port
     })
 }));
+
+app.use(bodyParser.urlencoded({ extended: false }));
+appHelper(app);
+// indexRouter(app);
+// app.use('/users', usersRouter);
+
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+    next(createError(404));
+});
 
 // error handler
 app.use(function(err, req, res, next) {
