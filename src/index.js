@@ -2,7 +2,7 @@
 * @Author: Administrator
 * @Date:   2018-11-16 10:56:10
 * @Last Modified by:   Administrator
-* @Last Modified time: 2018-11-16 17:27:15
+* @Last Modified time: 2018-11-20 20:18:23
 */
 
 'use strict';
@@ -17,13 +17,21 @@ var blog = {
 					'密码：  <input type="password" name="password"/><br />' +
 				     '<input type="submit" id="loginBtn" value="登录"/>' +
 				'</div>',
-			register: '<form method="post">' +
+			register: '<div id="submitLogin">' +
 					'用户名：  <input type="text" name="name"/><br />' +
 					'密码：    <input type="password" name="password"/><br />' +
 					'确认密码：<input type="password" name="password-repeat"/><br />' +
 					'邮箱：    <input type="email" name="email"/><br />' +
-				    '<input type="submit" value="注册"/>' +
-				'</form>'
+				    '<input type="submit" id="loginBtn" value="注册"/>' +
+				'</div>',
+			post: '<div id="submitLogin">' +
+					'标题：<br />' +
+					'<input type="text" name="title" value="" /><br />' +
+					'正文：<br />' +
+					'<textarea name="post" rows="20" cols="100"></textarea><br />' +
+					'<input type="submit" id="loginBtn" value="发表" />' +
+				'</div>',
+			token: ''
 		}
 	},
 	init: function () {
@@ -91,7 +99,7 @@ var blog = {
 			});
 			_this.data.article.innerHTML = articles;
 		} else {
-			_this.data.article.appendChild('<p>' + data.title + '</p>');
+			_this.data.article.innerHTML = '<p>' + data.title + '</p>';
 		}
 	},
 	updateNav: function (isLogin) {
@@ -105,9 +113,9 @@ var blog = {
 			loginedEle.forEach(function(item){item.style.display = 'none'});
 		}
 	},
-	getUserInfo: function () {
+	getUserInfo: function (token) {
 		var _this = this;
-		this.handleAjax('GET', '/', '', function(response) {
+		this.handleAjax('POST', '/', this.data.token, function(response) {
 			const data = JSON.parse(response);
 			console.log(data,  'success');
 			_this.data.title.innerText = data.title;
@@ -119,11 +127,8 @@ var blog = {
 		});
 	},
 	logOut: function () {
-		_this.handleAjax('GET', '/' + title, '', function(response) {
-			console.log(response, 'success');
-		}, function (error) {
-			console.log(error, 'error');
-		});
+		this.data.token = '';
+		this.getUserInfo();
 	},
 	handleRouterEvent: function () {
 		var tabs = this.getElement('nav>span');
@@ -133,7 +138,7 @@ var blog = {
 				var title = this.children[0].title;
 				if (_this.data[title]) {
 					_this.data.article.innerHTML=_this.data[title];
-					_this.submitLogin();
+					_this.submit('/' + title);
 					return;
 				} else if (title === 'logout') {
 					_this.logOut();
@@ -143,10 +148,11 @@ var blog = {
 			});
 		});
 	},
-	submitLogin: function () {
+	submit: function (url) {
 		var loginForm = this.getElement('#submitLogin');
 		var loginSublit = this.getElement('#loginBtn');
 		var _this = this;
+		console.log(loginSublit);
 		loginSublit.addEventListener('click', function(event) {
 			var formData = '';
 			for(var i=0; i < loginForm.children.length; i++) {
@@ -158,15 +164,22 @@ var blog = {
 					formData += item.name + '=' + item.value;
 				}
 			}
-			console.log(formData);
-			_this.handleAjax('POST', '/login', formData, function(response) {
+			var tokenOrigin = _this.data.token;
+			if (tokenOrigin) {
+				formData += ('&' + tokenOrigin);
+			}
+			_this.handleAjax('POST', url, formData, function(response) {
 				console.log(response, 'success');
-				_this.getUserInfo();
+				var token = JSON.parse(response).token;
+				if (token || tokenOrigin) {
+					_this.data.token = token ? 'token=' + token : tokenOrigin;
+					_this.getUserInfo();
+				}
 			}, function (error) {
 				console.log(error, 'error');
 			});
 		})
-	}
+	},
 
 };
 

@@ -2,7 +2,7 @@
 * @Author: Administrator
 * @Date:   2018-11-13 11:29:04
 * @Last Modified by:   Administrator
-* @Last Modified time: 2018-11-15 17:23:10
+* @Last Modified time: 2018-11-20 20:26:08
 */
 
 'use strict';
@@ -45,6 +45,7 @@ var openMongoDB = function (callback) {
                 return callback(err);
             }
             callback(collection);
+            mongodb.close();
         });
     });
 }

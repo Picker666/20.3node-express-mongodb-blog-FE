@@ -2,7 +2,7 @@
 * @Author: Administrator
 * @Date:   2018-11-13 09:56:58
 * @Last Modified by:   Administrator
-* @Last Modified time: 2018-11-16 09:49:07
+* @Last Modified time: 2018-11-20 19:21:32
 */
 
 'use strict';
@@ -28,6 +28,7 @@ User.prototype.save = function(callback) {
   //打开数据库
     mongodb.open(function (err, db) {
         if (err) {
+            mongodb.close();
             return callback(err);//错误，返回 err 信息
         }
     //读取 users 集合
@@ -55,7 +56,8 @@ User.get = function(name, callback) {
     //打开数据库
     mongodb.open(function (err, db) {
         if (err) {
-        return callback(err);//错误，返回 err 信息
+            mongodb.close();
+            return callback(err);//错误，返回 err 信息
         }
         //读取 users 集合
         db.collection('users', function (err, collection) {
