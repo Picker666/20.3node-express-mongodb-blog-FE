@@ -2,7 +2,7 @@
 * @Author: Administrator
 * @Date:   2018-11-16 11:52:23
 * @Last Modified by:   Administrator
-* @Last Modified time: 2018-11-20 20:19:07
+* @Last Modified time: 2018-11-21 17:59:27
 */
 
 'use strict';
@@ -39,7 +39,7 @@ var appHelper = function (app) {
 	               	name = decoded.name;
 	        	}
 	        });
-	     }
+	    };
 
 	  	Post.get(name, function (err, posts) {
 		    if (err) {
@@ -65,13 +65,13 @@ var appHelper = function (app) {
 		User.get(request.body.name, function (err, user) {
 			var responseData = {};
 			if (!user) {
-				responseData={error: '用户不存在!'};
+				responseData={msg: '用户不存在!'};
 			} else if (user.password != password) {
-				responseData={error: '密码错误!'};
+				responseData={msg: '密码错误!'};
 			} else {
 				// request.session.user = user;
-				responseData={
-					success: '登陆成功！',
+				responseData = {
+					msg: '登陆成功！',
 			    	token: jwt.sign(user, 'secret', {
 			            expiresIn: 3600 * 1000
 			        })
@@ -88,7 +88,8 @@ var appHelper = function (app) {
 		var responseData = {};
 		//检验用户两次输入的密码是否一致
 		if (password_re != password) {
-			responseData = {error: '两次输入的密码不一致!'};
+			responseData = {msg: '两次输入的密码不一致!'};
+			response.end(JSON.stringify(responseData));
 		} else {
 			//生成密码的 md5 值
 			var md5 = crypto.createHash('md5'),
@@ -102,31 +103,33 @@ var appHelper = function (app) {
 			//检查用户名是否已经存在 
 			User.get(newUser.name, function (err, user) {
 				if (err) {
-					console.log(err, 'err')
-					responseData = err;
+					responseData = {msg: err};
+					response.end(JSON.stringify(responseData));
 				} else if (user) {
 					console.log('用户已存在')
-					responseData = {'error': '用户已存在!'};
+					responseData = {'msg': '用户已存在!'};
+					response.end(JSON.stringify(responseData));
 				} else {
 					//如果不存在则新增用户
 					newUser.save(function (err, user) {
 						if (err) {
-							responseData = err;
-							console.log(err, 'erNewr')
+							responseData = {msg: err};
 						} else {
 							// req.session.user = newUser;//用户信息存入 session
 							responseData = {
-								success: '注册成功!',
+								msg: '注册成功!',
 						    	token: jwt.sign(param, 'secret', {
 						            expiresIn: 3600 * 1000
 						        })
 						    };
-						}
+						};
+
+						response.end(JSON.stringify(responseData));
 					});
 				};
 			});
 		}
-		response.end(JSON.stringify(responseData));
+		
 	});
 
 	app.post('/post', function (request, response) {
@@ -139,23 +142,23 @@ var appHelper = function (app) {
 				    var post = new Post(decoded.name, request.body.title, request.body.post);
 					post.save(function (error) {
 					    if (err) {
-					    	responseData = error;
+					    	responseData = {msg: error};
 					    }
-				    	responseData = {'success': '发布成功!'};
+				    	responseData = {'msg': '发布成功!'};
+				    	response.end(JSON.stringify(responseData));
 				  	});
 	        	} else {
-	        		responseData = err;
+	        		responseData = {msg: err};
+	        		response.end(JSON.stringify(responseData));
 	        	}
 	        });
 	    } else {
-	    	responseData = {error: '重新登陆！'};
+	    	responseData = {msg: '重新登陆！'};
+	    	response.end(JSON.stringify(responseData));
 	    }
-
-	    response.end(JSON.stringify(responseData));
-
 	});
 
-	app.post('/delete', function (request, response) {
+	app.post('/del', function (request, response) {
 	    // 使用body-parser
 	    Post.remove({id: request.body.id}, function(err, result) {
 	        response.end(JSON.stringify({status: 200}));

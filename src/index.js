@@ -2,7 +2,7 @@
 * @Author: Administrator
 * @Date:   2018-11-16 10:56:10
 * @Last Modified by:   Administrator
-* @Last Modified time: 2018-11-20 20:18:23
+* @Last Modified time: 2018-11-21 18:06:49
 */
 
 'use strict';
@@ -81,8 +81,8 @@ var blog = {
 				'作者：<a href="#">' + post.name + '</a> |' +
 				'日期：' + post.time.minute;
 		if (isLogin) {
-			article += '<span href="#" onClick="deleteData(event, post.id)">delete</span>' +
-				'<a>modify</a>';
+			article += '<span href="#" class="del" data-id=' + post.id + '>delete</span>' +
+				'<a class="modify" data-id=' + post.id + '>modify</a>';
 		}	
 		article += '</p>' +
 			'<p>' + post.post + '</p>' +
@@ -98,9 +98,32 @@ var blog = {
 				articles += _this.getArticle(item, data.isLogin);
 			});
 			_this.data.article.innerHTML = articles;
+			_this.handleDeleteArticles();
+			_this.handleModifyArticles();
 		} else {
 			_this.data.article.innerHTML = '<p>' + data.title + '</p>';
 		}
+	},
+	handleDeleteArticles: function(sign) {
+		var delBtns = this.getElement('.del');
+		var _this = this;
+		delBtns.forEach(function(btn) {
+			btn.addEventListener('click', function(event){
+				var id = this.dataset.id;
+				var data = _this.data.token + '&' + 'id=' + id;
+				_this.handleAjax('POST', 'del', data, function(response) {
+					var status = JSON.parse(response).status;
+					if (status === 200) {
+						_this.getUserInfo();
+					}
+				}, function (error) {
+					console.log(error, 'error');
+				});
+			})
+		})
+	},
+	handleModifyArticles: function () {
+
 	},
 	updateNav: function (isLogin) {
 		var loginedEle = this.getElement('.logined');
@@ -113,7 +136,14 @@ var blog = {
 			loginedEle.forEach(function(item){item.style.display = 'none'});
 		}
 	},
-	getUserInfo: function (token) {
+	updateRemind: function (remind) {
+		var remindEle = this.getElement('.remind', true);
+		remindEle.innerText = remind;
+		setTimeout(function(){
+			remindEle.innerText = '';
+		}, 3000);
+	},
+	getUserInfo: function () {
 		var _this = this;
 		this.handleAjax('POST', '/', this.data.token, function(response) {
 			const data = JSON.parse(response);
@@ -169,18 +199,21 @@ var blog = {
 				formData += ('&' + tokenOrigin);
 			}
 			_this.handleAjax('POST', url, formData, function(response) {
-				console.log(response, 'success');
-				var token = JSON.parse(response).token;
+				var responseData = JSON.parse(response);
+				console.log(responseData, 'success');
+				var token = responseData.token;
+				var msg = responseData.msg;
 				if (token || tokenOrigin) {
 					_this.data.token = token ? 'token=' + token : tokenOrigin;
 					_this.getUserInfo();
 				}
+				_this.updateRemind(msg);
 			}, function (error) {
 				console.log(error, 'error');
+				_this.updateRemind(error);
 			});
 		})
 	},
-
 };
 
 blog.init();

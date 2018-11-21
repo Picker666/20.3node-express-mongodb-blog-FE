@@ -2,7 +2,7 @@
 * @Author: Administrator
 * @Date:   2018-11-16 10:55:59
 * @Last Modified by:   Administrator
-* @Last Modified time: 2018-11-16 10:59:22
+* @Last Modified time: 2018-11-21 17:51:33
 */
 body {
   padding: 50px;
@@ -24,8 +24,12 @@ nav a:hover {color:#488ff9;-webkit-transition:color .2s linear;}
 article {font-size:16px;padding-top:.5em;}
 article a {color:#488ff9;text-decoration:none;}
 article a:hover {color:#333333;text-decoration:underline;}
-.logout {color: #ff0000;}
+.remind { color: #488ff9; }
+.del { margin: 0 20px; }
+.logout { color: #ff0000; }
 
 .info {font-size:14px;}
 .info span { color: #ff0000; }
 .info span:hover { cursor: pointer; }
+.info a:hover { cursor: pointer; }
+
