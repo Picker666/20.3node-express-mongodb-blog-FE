@@ -2,7 +2,7 @@
 * @Author: Administrator
 * @Date:   2018-11-13 14:07:23
 * @Last Modified by:   Administrator
-* @Last Modified time: 2018-11-15 14:30:39
+* @Last Modified time: 2018-11-22 15:46:56
 */
 
 'use strict';
@@ -34,5 +34,4 @@ var deleteData = function(event, id) {
 	xmlhttp.open("POST", "/delete", true);
 	xmlhttp.setRequestHeader('content-type','application/x-www-form-urlencoded');
 	xmlhttp.send('id=' + id);
-	// xmlhttp.send({id: id});
 }

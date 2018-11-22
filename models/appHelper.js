@@ -2,7 +2,7 @@
 * @Author: Administrator
 * @Date:   2018-11-16 11:52:23
 * @Last Modified by:   Administrator
-* @Last Modified time: 2018-11-21 17:59:27
+* @Last Modified time: 2018-11-22 14:40:23
 */
 
 'use strict';
@@ -128,8 +128,7 @@ var appHelper = function (app) {
 					});
 				};
 			});
-		}
-		
+		};
 	});
 
 	app.post('/post', function (request, response) {
@@ -163,7 +162,26 @@ var appHelper = function (app) {
 	    Post.remove({id: request.body.id}, function(err, result) {
 	        response.end(JSON.stringify({status: 200}));
 	    });
-	})
+	});
+
+	app.post('/modify', function (request, response) {
+	    jwt.verify(request.body.token, 'secret', function(err, decoded) {
+			var responseData = {};
+            if (!err) {
+			    var post = new Post(decoded.name, request.body.title, request.body.post);
+				post.modify(request.body.modifyId, function (error) {
+			    	responseData = {'msg': '发布成功!'};
+				    if (err) {
+				    	responseData = {msg: error};
+				    }
+			    	response.end(JSON.stringify(responseData));
+			  	});
+        	} else {
+        		responseData = {msg: err};
+        		response.end(JSON.stringify(responseData));
+        	}
+        });
+	});
 };
 
 module.exports = appHelper;

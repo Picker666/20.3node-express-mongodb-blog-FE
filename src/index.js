@@ -2,7 +2,7 @@
 * @Author: Administrator
 * @Date:   2018-11-16 10:56:10
 * @Last Modified by:   Administrator
-* @Last Modified time: 2018-11-21 18:06:49
+* @Last Modified time: 2018-11-22 15:45:52
 */
 
 'use strict';
@@ -31,13 +31,15 @@ var blog = {
 					'<textarea name="post" rows="20" cols="100"></textarea><br />' +
 					'<input type="submit" id="loginBtn" value="发表" />' +
 				'</div>',
-			token: ''
+			token: '',
+			modifyId: ''
 		}
 	},
 	init: function () {
 		this.data = this.initalData();
 		this.getUserInfo();
 		this.handleRouterEvent();
+		this.addListenerNavItem();
 	},
 	getElement: function (val, isSingle) {
 		var typeSign = val.slice(0,1);
@@ -76,7 +78,7 @@ var blog = {
 	},
 	getArticle: function (post, isLogin) {
 		var article = '<div>' +
-			'<p><h2>' + post.title + '</h2></p>' +
+			'<h2>' + post.title + '</h2>' +
 			'<p class="info"> '+
 				'作者：<a href="#">' + post.name + '</a> |' +
 				'日期：' + post.time.minute;
@@ -104,14 +106,14 @@ var blog = {
 			_this.data.article.innerHTML = '<p>' + data.title + '</p>';
 		}
 	},
-	handleDeleteArticles: function(sign) {
+	handleDeleteArticles: function() {
 		var delBtns = this.getElement('.del');
 		var _this = this;
 		delBtns.forEach(function(btn) {
 			btn.addEventListener('click', function(event){
 				var id = this.dataset.id;
 				var data = _this.data.token + '&' + 'id=' + id;
-				_this.handleAjax('POST', 'del', data, function(response) {
+				_this.handleAjax('POST', '/del', data, function(response) {
 					var status = JSON.parse(response).status;
 					if (status === 200) {
 						_this.getUserInfo();
@@ -122,8 +124,27 @@ var blog = {
 			})
 		})
 	},
-	handleModifyArticles: function () {
+	handleModifyArticles: function (event, post) {
+		var delBtns = this.getElement('.modify');
+		var _this = this;
+		delBtns.forEach(function(btn) {
+			btn.addEventListener('click', function(event){
+				_this.data.modifyId = this.dataset.id;
 
+				var title = this.parentNode.previousSibling.innerHTML;
+				var post = this.parentNode.nextElementSibling.innerHTML;
+
+				_this.data.article.innerHTML = _this.data['post'];
+				var postPanel = _this.getElement('#submitLogin');
+				var inputEle = postPanel.children[1];
+				var textareEle = postPanel.children[4];
+				inputEle.value = title;
+				textareEle.value = post;
+
+				_this.submit('/modify');
+				_this.setNavItem(_this.getElement('.post', true));
+			});
+		});
 	},
 	updateNav: function (isLogin) {
 		var loginedEle = this.getElement('.logined');
@@ -135,6 +156,22 @@ var blog = {
 			unloginEle.forEach(function(item){item.style.display = 'inline-block'});
 			loginedEle.forEach(function(item){item.style.display = 'none'});
 		}
+	},
+	addListenerNavItem: function() {
+		var eleAs = this.getElement('nav>span');
+		var _this = this;
+		eleAs.forEach(function(item) {
+			item.addEventListener('click', function(event) {
+				_this.setNavItem(event.target);
+			});
+		});
+	},
+	setNavItem: function (target) {
+		var eleAs = this.getElement('nav>span');
+		eleAs.forEach(function(ele) {
+			ele.children[0].style.color = '';
+		});
+		target.style.color = '#488ff9';
 	},
 	updateRemind: function (remind) {
 		var remindEle = this.getElement('.remind', true);
@@ -152,6 +189,7 @@ var blog = {
 
 			_this.getAllArticles(data);
 			_this.updateNav(data.isLogin);
+			_this.setNavItem(_this.getElement('.home', true));
 		}, function (error) {
 			console.log(error, 'error');
 		});
@@ -195,6 +233,10 @@ var blog = {
 				}
 			}
 			var tokenOrigin = _this.data.token;
+			var modifyId = _this.data.modifyId;
+			if (modifyId) {
+				formData += ('&modifyId=' + modifyId);
+			}
 			if (tokenOrigin) {
 				formData += ('&' + tokenOrigin);
 			}

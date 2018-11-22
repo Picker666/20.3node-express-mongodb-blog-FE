@@ -2,7 +2,7 @@
 * @Author: Administrator
 * @Date:   2018-11-16 10:55:59
 * @Last Modified by:   Administrator
-* @Last Modified time: 2018-11-21 17:51:33
+* @Last Modified time: 2018-11-22 14:59:49
 */
 body {
   padding: 50px;
@@ -19,12 +19,12 @@ body {width:600px;margin:2em auto;padding:0 2em;font-size:14px;font-family:"Micr
 p {line-height:24px;margin:1em 0;}
 header {padding:.5em 0;border-bottom:1px solid #cccccc;}
 nav {float:left;font-family:"Microsoft YaHei";font-size:1.1em;text-transform:uppercase;margin-left:-12em;width:9em;text-align:right;}
-nav a {display:block;text-decoration:none;padding:.7em 1em;color:#000000;}
+nav a {display:block;text-decoration:none; padding:.7em 1em; color:#000000;}
 nav a:hover {color:#488ff9;-webkit-transition:color .2s linear;}
 article {font-size:16px;padding-top:.5em;}
 article a {color:#488ff9;text-decoration:none;}
 article a:hover {color:#333333;text-decoration:underline;}
-.remind { color: #488ff9; }
+.remind { color: #488ff9; margin: 0; height: 32px; line-height: 32px; }
 .del { margin: 0 20px; }
 .logout { color: #ff0000; }
 
