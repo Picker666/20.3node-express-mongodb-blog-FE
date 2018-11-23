@@ -2,7 +2,7 @@
 * @Author: Administrator
 * @Date:   2018-11-16 10:56:10
 * @Last Modified by:   Administrator
-* @Last Modified time: 2018-11-22 15:45:52
+* @Last Modified time: 2018-11-23 15:59:19
 */
 
 'use strict';
@@ -55,8 +55,8 @@ var blog = {
 	},
 	handleAjax: function (type, url, data, success, error) {
 		//  IE7+, Firefox, Chrome, Opera, Safari 浏览器执行代码
-		var xmlhttp = xmlhttp=new XMLHttpRequest();
-		
+		var xmlhttp = new XMLHttpRequest();
+		// xmlhttp.withCredentials = true;
 		xmlhttp.onreadystatechange = function(event) {
 			var response = event.target.response;
 			try{
@@ -74,6 +74,11 @@ var blog = {
 		url = 'http://localhost:3000' + url;
 		xmlhttp.open(type, url, true);
 		type === 'POST' && xmlhttp.setRequestHeader('content-type','application/x-www-form-urlencoded');
+		var token = this.data.token;
+		if (token) {
+			console.log(token.split('=')[1]);
+			// xmlhttp.setRequestHeader('Authorization', 'Bearer ' + token);
+		}
 		xmlhttp.send(data);
 	},
 	getArticle: function (post, isLogin) {
